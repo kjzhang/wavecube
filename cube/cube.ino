@@ -16,7 +16,7 @@ const int COLOR_R = 0;
 const int COLOR_G = 1;
 const int COLOR_B = 2;
 
-int cube[NUM_LAYERS][NUM_CHANNELS];
+const int MAX_POWER = 2048;
 
 char cubeBuffer[NUM_LAYERS][NUM_CHANNELS];
 
@@ -56,54 +56,37 @@ void setup() {
   digitalWrite(LAYER_2, LOW);
   digitalWrite(LAYER_3, LOW);
 
-  // powerLayer(1, 0);
-  // powerColor(COLOR_B, 1024);
-
-  for (int layer = 0; layer < NUM_LAYERS; layer++) {
-    for (int channel = 16; channel < 48; channel++) {
-      cube[layer][channel] = 1024;
-    }
-  }
+  powerLayer(0);
 }
 
 void loop() {
-  // iterateRGB();
+  // sampleRGB();
+  // sampleMultiplex();
 
-  /*
-  for (int layer = 0; layer < 4; layer++) {
-   powerLayer(layer, 0);
-   delay(5);
-   }
-   */
-
-
-  Serial.println("WAITING");
-  /*
-  if (Serial.available() >= 2) {
-   for (int layer = 0; layer < NUM_LAYERS; layer++) {
-   Serial.readBytes(cubeBuffer[layer], NUM_CHANNELS);
-   Serial.print("reading layer ");
-   Serial.println(layer, DEC);
-   }
-   }
-   */
-
-  delay(250);
-
-
-  //renderCube(2);
+  if (Serial.available()) {
+    for (int layer = 0; layer < NUM_LAYERS; layer++) {
+      Serial.readBytes(cubeBuffer[layer], NUM_CHANNELS);
+    }
+  }
+  renderCube(5);
 }
 
 void renderCube(int interval) {
+  unsigned char **cube = (unsigned char **) cubeBuffer;
   for (int layer = 0; layer < NUM_LAYERS; layer++) {
     renderLayer(layer, cube[layer]);
     delay(interval);
   }
 }
 
-void renderLayer(int layer, int cubeLayer[]) {
+void renderLayer(int layer, unsigned char cubeLayer[]) {
   for (int c = 0; c < NUM_CHANNELS; c++) {
-    Tlc.set(getOutput(c), cubeLayer[c]);
+    int power = MAX_POWER * ((int) cubeLayer[c]) / 256;
+    if (power > MAX_POWER) {
+      power = MAX_POWER;
+    } 
+    
+    Tlc.set(getOutput(c), power); 
   }
 
   powerLayer(-1);
@@ -158,12 +141,20 @@ int getOutput(int channel) {
   return COLOR_MAP[channel];
 }
 
-void iterateRGB() {
+void sampleRGB() {
   for (int channel = 0; channel < 16 * NUM_TLCS; channel++) {
     Tlc.clear();
     Tlc.set(getOutput(channel), 2048);
     Tlc.update();
     delay(50);
+  }
+}
+
+void sampleMultiplex() {
+  powerColor(COLOR_B, 1024);
+  for (int layer = 0; layer < NUM_LAYERS; layer++) {
+    powerLayer(layer);
+    delay(5);
   }
 }
 
