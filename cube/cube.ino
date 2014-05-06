@@ -22,43 +22,43 @@ char cubeBuffer[NUM_LAYERS][NUM_CHANNELS];
 
 const uint8_t COLOR_MAP[] = {
   // R_MAP
-   0,  2, 44, 47,
-   7,  6, 41, 40,
+  0,  2, 44, 47,
+  7,  6, 41, 40,
   14, 12, 35, 33,
   17, 19, 27, 31,
   // G_MAP
-   3,  5, 43, 46,
+  3,  5, 43, 46,
   11,  8, 37, 39,
   21, 23, 28, 34,
   20, 22, 29, 32,
   // B_MAP
-   1,  4, 42, 45,
+  1,  4, 42, 45,
   10,  9, 38, 36,
   15, 13, 25, 24,
   16, 18, 26, 30
 };
 
 void setup() {
-  Serial.begin(57600);
+  Serial.begin(115200);
   Serial.setTimeout(60000);
   Serial.println("SWAGASAURUS");
-  
+
   Tlc.init(0);
   Tlc.update();
-  
+
   pinMode(LAYER_0, OUTPUT);
   pinMode(LAYER_1, OUTPUT);
   pinMode(LAYER_2, OUTPUT);
   pinMode(LAYER_3, OUTPUT);
-  
+
   digitalWrite(LAYER_0, LOW);
   digitalWrite(LAYER_1, LOW);
   digitalWrite(LAYER_2, LOW);
   digitalWrite(LAYER_3, LOW);
-  
+
   // powerLayer(1, 0);
   // powerColor(COLOR_B, 1024);
-  
+
   for (int layer = 0; layer < NUM_LAYERS; layer++) {
     for (int channel = 16; channel < 48; channel++) {
       cube[layer][channel] = 1024;
@@ -68,27 +68,28 @@ void setup() {
 
 void loop() {
   // iterateRGB();
-  
+
   /*
   for (int layer = 0; layer < 4; layer++) {
-    powerLayer(layer, 0);
-    delay(5);
-  }
-  */
+   powerLayer(layer, 0);
+   delay(5);
+   }
+   */
 
-  
-  Serial.println('WAITING');
+
+  Serial.println("WAITING");
   /*
   if (Serial.available() >= 2) {
-    for (int layer = 0; layer < NUM_LAYERS; layer++) {
-      Serial.readBytes(cubeBuffer[layer], NUM_CHANNELS);
-      Serial.print("reading layer ");
-      Serial.println(layer, DEC);
-    }
-  }
-  */
-  
-  
+   for (int layer = 0; layer < NUM_LAYERS; layer++) {
+   Serial.readBytes(cubeBuffer[layer], NUM_CHANNELS);
+   Serial.print("reading layer ");
+   Serial.println(layer, DEC);
+   }
+   }
+   */
+
+  delay(250);
+
 
   //renderCube(2);
 }
@@ -104,7 +105,7 @@ void renderLayer(int layer, int cubeLayer[]) {
   for (int c = 0; c < NUM_CHANNELS; c++) {
     Tlc.set(getOutput(c), cubeLayer[c]);
   }
-  
+
   powerLayer(-1);
   Tlc.update();
   powerLayer(layer);
@@ -120,36 +121,36 @@ void powerColor(int color, int power) {
 
 void powerLayer(int layer) {
   switch (layer) {
-    case 0:
-      digitalWrite(LAYER_1, LOW);
-      digitalWrite(LAYER_2, LOW);
-      digitalWrite(LAYER_3, LOW);
-      digitalWrite(LAYER_0, HIGH);
-      break;
-    case 1:
-      digitalWrite(LAYER_0, LOW);
-      digitalWrite(LAYER_2, LOW);
-      digitalWrite(LAYER_3, LOW);
-      digitalWrite(LAYER_1, HIGH);
-      break;
-    case 2:
-      digitalWrite(LAYER_0, LOW);
-      digitalWrite(LAYER_1, LOW);
-      digitalWrite(LAYER_3, LOW);
-      digitalWrite(LAYER_2, HIGH);
-      break;
-    case 3:
-      digitalWrite(LAYER_0, LOW);
-      digitalWrite(LAYER_1, LOW);
-      digitalWrite(LAYER_2, LOW);
-      digitalWrite(LAYER_3, HIGH);
-      break;
-    default:
-      digitalWrite(LAYER_0, LOW);
-      digitalWrite(LAYER_1, LOW);
-      digitalWrite(LAYER_2, LOW);
-      digitalWrite(LAYER_3, LOW);
-      break;
+  case 0:
+    digitalWrite(LAYER_1, LOW);
+    digitalWrite(LAYER_2, LOW);
+    digitalWrite(LAYER_3, LOW);
+    digitalWrite(LAYER_0, HIGH);
+    break;
+  case 1:
+    digitalWrite(LAYER_0, LOW);
+    digitalWrite(LAYER_2, LOW);
+    digitalWrite(LAYER_3, LOW);
+    digitalWrite(LAYER_1, HIGH);
+    break;
+  case 2:
+    digitalWrite(LAYER_0, LOW);
+    digitalWrite(LAYER_1, LOW);
+    digitalWrite(LAYER_3, LOW);
+    digitalWrite(LAYER_2, HIGH);
+    break;
+  case 3:
+    digitalWrite(LAYER_0, LOW);
+    digitalWrite(LAYER_1, LOW);
+    digitalWrite(LAYER_2, LOW);
+    digitalWrite(LAYER_3, HIGH);
+    break;
+  default:
+    digitalWrite(LAYER_0, LOW);
+    digitalWrite(LAYER_1, LOW);
+    digitalWrite(LAYER_2, LOW);
+    digitalWrite(LAYER_3, LOW);
+    break;
   }
 }
 
@@ -165,5 +166,7 @@ void iterateRGB() {
     delay(50);
   }
 }
+
+
 
 
