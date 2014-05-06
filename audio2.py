@@ -55,21 +55,21 @@ def bin_to_coordinate(bin):
         return (0,3)
 
 def levels_to_output(levels):
-    colors = numpy.zeros(shape=(4,4,3))
-    heights = numpy.zeros(shape=(4,4))
+    colors = numpy.zeros(shape=(4,4,3), dtype=numpy.uint8)
+    heights = numpy.zeros(shape=(4,4), dtype=numpy.uint8)
     vol_increment = (90.0/4)
 
     for i in xrange(len(levels)):
         x,y = bin_to_coordinate(i+1)
         heights[x][y] = min(round(levels[i]/vol_increment), 3)
-        colors[x][y][0] = round(random.random()*2048)
-        colors[x][y][1] = round(random.random()*2048)
-        colors[x][y][2] = round(random.random()*2048)
+        colors[x][y][0] = round(random.random()*256)
+        colors[x][y][1] = round(random.random()*256)
+        colors[x][y][2] = round(random.random()*256)
 
     return colors, heights
 
 def output_to_serial_format((colors, heights)):
-    serial_output = numpy.zeros(shape=(4,48))
+    serial_output = numpy.zeros(shape=(4,48), dtype=numpy.uint8)
 
     for x in xrange(4):
         for y in xrange(4):
