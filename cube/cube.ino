@@ -16,8 +16,10 @@ const int COLOR_R = 0;
 const int COLOR_G = 1;
 const int COLOR_B = 2;
 
-const int MAX_POWER = 2048;
+const int MAX_POWER = 2000;
 
+const int CHAR_OFFSET = 128;
+const int CHAR_MAX = 255;
 char cubeBuffer[NUM_LAYERS][NUM_CHANNELS];
 
 const uint8_t COLOR_MAP[] = {
@@ -38,9 +40,12 @@ const uint8_t COLOR_MAP[] = {
   16, 18, 26, 30
 };
 
+unsigned long prevMillis = 0;
+unsigned long updateInterval = 0;
+
 void setup() {
-  Serial.begin(115200);
-  Serial.setTimeout(60000);
+  Serial.begin(57600);
+  Serial.setTimeout(1000);
   Serial.println("SWAGASAURUS");
 
   Tlc.init(0);
@@ -62,31 +67,31 @@ void setup() {
 void loop() {
   // sampleRGB();
   // sampleMultiplex();
+  
+  music();
+}
 
-  if (Serial.available()) {
+void music() {
+  if (Serial.available() > 0) {
     for (int layer = 0; layer < NUM_LAYERS; layer++) {
       Serial.readBytes(cubeBuffer[layer], NUM_CHANNELS);
     }
   }
-  renderCube(5);
+
+  renderCube(1);
 }
 
 void renderCube(int interval) {
-  unsigned char **cube = (unsigned char **) cubeBuffer;
   for (int layer = 0; layer < NUM_LAYERS; layer++) {
-    renderLayer(layer, cube[layer]);
+    renderLayer(layer, cubeBuffer[layer]);
     delay(interval);
   }
 }
 
-void renderLayer(int layer, unsigned char cubeLayer[]) {
+void renderLayer(int layer, char cubeLayer[]) {
+  unsigned char *cube = (unsigned char *) cubeLayer;
   for (int c = 0; c < NUM_CHANNELS; c++) {
-    int power = MAX_POWER * ((int) cubeLayer[c]) / 256;
-    if (power > MAX_POWER) {
-      power = MAX_POWER;
-    } 
-    
-    Tlc.set(getOutput(c), power); 
+    Tlc.set(getOutput(c), map((int) cube[c], 0, 255, 0, MAX_POWER)); 
   }
 
   powerLayer(-1);
@@ -142,11 +147,14 @@ int getOutput(int channel) {
 }
 
 void sampleRGB() {
-  for (int channel = 0; channel < 16 * NUM_TLCS; channel++) {
-    Tlc.clear();
-    Tlc.set(getOutput(channel), 2048);
-    Tlc.update();
-    delay(50);
+  for (int layer = 0; layer < NUM_LAYERS; layer++) {
+    powerLayer(layer);
+    for (int channel = 0; channel < 16 * NUM_TLCS; channel++) {
+      Tlc.clear();
+      Tlc.set(getOutput(channel), 2048);
+      Tlc.update();
+      delay(10);
+    }
   }
 }
 
@@ -157,7 +165,4 @@ void sampleMultiplex() {
     delay(5);
   }
 }
-
-
-
 
